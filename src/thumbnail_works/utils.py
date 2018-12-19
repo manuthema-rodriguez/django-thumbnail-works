@@ -28,7 +28,7 @@ from thumbnail_works.exceptions import ImageSizeError
 
 
 
-def get_width_height_from_string(size):
+def get_width_height_from_string(size, original_size=None):
     """Returns a (WIDTH, HEIGHT) tuple.
     
     Accepts a string in the form WIDTHxHEIGHT
@@ -36,16 +36,35 @@ def get_width_height_from_string(size):
     Raises ImageSizeError when on invalid image size.  
     
     """
+    ############## Interactvty ######################
+
     try:
         bits = size.split('x', 1)
     except AttributeError:
         raise ImageSizeError('size must be a string of the form WIDTHxHEIGHT')
     if len(bits) != 2:
         raise ImageSizeError('size must be a string of the form WIDTHxHEIGHT')
+
     try:
         size_x = int(bits[0])
+    except ValueError:
+        # No tengo el ancho
+        if original_size:
+            x = (original_size[0] * int(bits[1])) / original_size[1]
+            size_x = int(x)
+        else:
+            raise ImageSizeError('size\'s WIDTH and HEIGHT must be integers')
+
+    try:
         size_y = int(bits[1])
     except ValueError:
-        raise ImageSizeError('size\'s WIDTH and HEIGHT must be integers')
-    return size_x, size_y
+        # No tengo el alto
+        if original_size:
+            y = (original_size[1] * int(bits[0])) / original_size[0]
+            size_y = int(y)
+        else:
+            raise ImageSizeError('size\'s WIDTH and HEIGHT must be integers')
 
+    return size_x, size_y
+    
+    

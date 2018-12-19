@@ -141,7 +141,9 @@ class ImageProcessor:
         else:
             return content
     
-    def process_image(self, content=None):
+    #### INTERACTVTY ##############
+    #def process_image(self, content=None, original_size=None):
+    def process_image(self, content=None, original_size=None):
         """Processes and returns the image data."""
         
         if content is None:
@@ -162,7 +164,10 @@ class ImageProcessor:
         upscale = self.proc_opts['upscale']
         crop = self.proc_opts['crop']
         if size is not None:
-            new_size = get_width_height_from_string(size)
+            #### INTERACTVTY ##############
+            #new_size = get_width_height_from_string(size)
+            new_size = get_width_height_from_string(size, original_size)
+            ############################
             im = self._resize(im, new_size, upscale, crop)
         
         sharpen = self.proc_opts['sharpen']

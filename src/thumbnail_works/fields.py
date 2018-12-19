@@ -33,6 +33,9 @@ from thumbnail_works.exceptions import NoAccessToImage
 from thumbnail_works import settings
 from thumbnail_works.images import ImageProcessor
 
+#### Interactvty
+from interactvty.s3Utils import get_storage
+from django.core.files.images import get_image_dimensions
 
 
 class BaseThumbnailFieldFile(ImageFieldFile):
@@ -76,6 +79,10 @@ class BaseThumbnailFieldFile(ImageFieldFile):
         self.setup_image_processing_options(proc_opts)
         self.source = source
         
+        #### INTERACTVTY ##############
+        self.instance = instance
+        ############################
+        
         # Get a proper thumbnail name (relative path to MEDIA_ROOT)
         name = self.generate_image_name(name=name)
         # self.name is set by the following 
@@ -107,7 +114,15 @@ class BaseThumbnailFieldFile(ImageFieldFile):
             except NoAccessToImage:
                 return
         
-        thumbnail_content = self.process_image(source_content)
+        #### INTERACTVTY ##############
+        #thumbnail_content = self.process_image(source_content)
+        thumbnail_content = self.process_image(source_content, get_image_dimensions(source_content))
+        ############################
+        
+        #### INTERACTVTY ##############
+        self.storage = get_storage(self.instance.client, "IMG")
+        ############################
+        
         self.name = self.storage.save(self.name, thumbnail_content)
 
         # Update the filesize cache
@@ -128,6 +143,11 @@ class BaseThumbnailFieldFile(ImageFieldFile):
             self.close()
             del self.file
 
+
+		#### INTERACTVTY ##############
+        self.storage = get_storage(self.instance.client, "IMG")
+        ############################
+        
         self.storage.delete(self.name)
 
         self.name = None
@@ -294,7 +314,10 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         # Resize the source image if image processing options have been set
         if self.proc_opts is not None:
             try:
-                content = self.process_image(content)
+                #### INTERACTVTY ##############
+				#content = self.process_image(content)
+				content = self.process_image(content, get_image_dimensions(content))
+				############################
             except NoAccessToImage:
                 pass
             # The following sets the correct filename extension according
