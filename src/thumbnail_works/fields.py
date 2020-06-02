@@ -274,22 +274,19 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         A good write-up on this exists at:  http://bit.ly/c2JL8H
         
         """
-        if not self.__dict__.has_key(attribute):
+        if attribute not in self.__dict__:
             # Proceed to thumbnail generation only if a *thumbnail* attribute
             # is requested
-            if self.field.thumbnails.has_key(attribute):
-                # Check thumbnail exists and generate it if need
+            if 'field' in self.__dict__ and attribute in self.field.thumbnails:
+                # Generate thumbnail
                 self._require_file()    # TODO: document this
                 if self._verify_thumbnail_requirements():
                     proc_opts = self.field.thumbnails[attribute]
-                    t = ThumbnailFieldFile(self.instance, self.field, self, self.name, attribute, proc_opts)
-                    if self.storage.exists(smart_unicode(t.name)):
-                        setattr(self, attribute, t)
-                    else:
-                        t.save()
-                    assert self.__dict__[attribute] == t, \
-                        Exception('Thumbnail attribute `%s` not set' % attribute)
-        return self.__dict__[attribute]
+                    t = self.thumbnail_class(self.instance, self.field, self, self.name, attribute, proc_opts)
+                    t.save()
+            else:
+                return super(BaseEnhancedImageFieldFile, self).__getattr__(attribute)
+        return self.__dict__.get(attribute)
     
     def save(self, name, content, save=True):
         """Saves the source image and generates thumbnails.
@@ -315,9 +312,9 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         if self.proc_opts is not None:
             try:
                 #### INTERACTVTY ##############
-				#content = self.process_image(content)
-				content = self.process_image(content, get_image_dimensions(content))
-				############################
+                #content = self.process_image(content)
+                content = self.process_image(content, get_image_dimensions(content))
+                ############################
             except NoAccessToImage:
                 pass
             # The following sets the correct filename extension according
@@ -334,7 +331,7 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         
         # Generate all thumbnails
         if self._verify_thumbnail_requirements():
-            for identifier, proc_opts in self.field.thumbnails.items():
+            for identifier, proc_opts in list(self.field.thumbnails.items()):
                 t = ThumbnailFieldFile(self.instance, self.field, self, self.name, identifier, proc_opts)
                 t.save(content)
     
@@ -346,7 +343,7 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         """
         # First try to delete the thumbnails
         if self._verify_thumbnail_requirements():
-            for identifier, proc_opts in self.field.thumbnails.items():
+            for identifier, proc_opts in list(self.field.thumbnails.items()):
                 t = ThumbnailFieldFile(self.instance, self.field, self, self.name, identifier, proc_opts)
                 t.delete()
         

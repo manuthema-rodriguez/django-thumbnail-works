@@ -46,8 +46,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-thumbnail-works'
-copyright = u'2010, George Notaras'
+project = 'django-thumbnail-works'
+copyright = '2010, George Notaras'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -184,8 +184,8 @@ htmlhelp_basename = 'django-thumbnail-worksdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-thumbnail-works.tex', u'django-thumbnail-works Documentation',
-   u'George Notaras', 'manual'),
+  ('index', 'django-thumbnail-works.tex', 'django-thumbnail-works Documentation',
+   'George Notaras', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -217,18 +217,18 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-thumbnail-works', u'django-thumbnail-works Documentation',
-     [u'George Notaras'], 1)
+    ('index', 'django-thumbnail-works', 'django-thumbnail-works Documentation',
+     ['George Notaras'], 1)
 ]
 
 
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'django-thumbnail-works'
-epub_author = u'George Notaras'
-epub_publisher = u'George Notaras'
-epub_copyright = u'2010, George Notaras'
+epub_title = 'django-thumbnail-works'
+epub_author = 'George Notaras'
+epub_publisher = 'George Notaras'
+epub_copyright = '2010, George Notaras'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
