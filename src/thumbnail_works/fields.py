@@ -25,7 +25,6 @@
 #
 
 from django.db.models.fields.files import ImageField, ImageFieldFile
-from django.utils.encoding import smart_unicode
 
 from thumbnail_works.exceptions import ThumbnailOptionError
 from thumbnail_works.exceptions import ThumbnailWorksError
