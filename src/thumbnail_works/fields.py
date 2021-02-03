@@ -33,7 +33,7 @@ from thumbnail_works import settings
 from thumbnail_works.images import ImageProcessor
 
 #### Interactvty
-from interactvty.s3Utils import get_storage
+from interactvty.utils.s3Utils import get_storage
 from django.core.files.images import get_image_dimensions
 
 

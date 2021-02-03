@@ -152,7 +152,7 @@ class ImageProcessor:
         im = Image.open(content)
         
         # Convert to RGB format
-        if im.mode not in ('L', 'RGB', 'RGBA'):
+        if im.mode not in ('L', 'RGB'):
             im = im.convert('RGB')
         
         # Process
