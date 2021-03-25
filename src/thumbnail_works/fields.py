@@ -104,6 +104,8 @@ class BaseThumbnailFieldFile(ImageFieldFile):
         source image's ImageFieldFile.
         
         """
+
+        self.storage = get_storage(self.instance.client, "IMG")
         # Set the thumbnail as an attribute of the source image's ImageFieldFile
         setattr(self.source, self.identifier, self)
 
@@ -116,10 +118,6 @@ class BaseThumbnailFieldFile(ImageFieldFile):
         #### INTERACTVTY ##############
         #thumbnail_content = self.process_image(source_content)
         thumbnail_content = self.process_image(source_content, get_image_dimensions(source_content))
-        ############################
-        
-        #### INTERACTVTY ##############
-        self.storage = get_storage(self.instance.client, "IMG")
         ############################
         
         self.name = self.storage.save(self.name, thumbnail_content)
@@ -141,12 +139,8 @@ class BaseThumbnailFieldFile(ImageFieldFile):
         if hasattr(self, '_file'):
             self.close()
             del self.file
-
-
-		#### INTERACTVTY ##############
-        self.storage = get_storage(self.instance.client, "IMG")
-        ############################
         
+        self.storage = get_storage(self.instance.client, "IMG")
         self.storage.delete(self.name)
 
         self.name = None
@@ -273,19 +267,28 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         A good write-up on this exists at:  http://bit.ly/c2JL8H
         
         """
-        if attribute not in self.__dict__:
-            # Proceed to thumbnail generation only if a *thumbnail* attribute
-            # is requested
-            if 'field' in self.__dict__ and attribute in self.field.thumbnails:
-                # Generate thumbnail
+        value = self.__dict__.get(attribute)
+        if value:
+            return value
+        else:
+            if attribute in self.field.thumbnails:
+                # Check thumbnail exists and generate it if need
                 self._require_file()    # TODO: document this
                 if self._verify_thumbnail_requirements():
+                    self.storage = get_storage(self.instance.client, type='IMG')
                     proc_opts = self.field.thumbnails[attribute]
-                    t = self.thumbnail_class(self.instance, self.field, self, self.name, attribute, proc_opts)
-                    t.save()
-            else:
-                return super(BaseEnhancedImageFieldFile, self).__getattr__(attribute)
-        return self.__dict__.get(attribute)
+                    t = ThumbnailFieldFile(self.instance, self.field, self, self.name, attribute, proc_opts)
+
+                    if not settings.THUMBNAILS_DELAYED_GENERATION or self.storage.exists(t.name):
+                        setattr(self, attribute, t)
+                    else:
+                        t.save()
+                    assert self.__dict__[attribute] == t, \
+                        Exception('Thumbnail attribute `%s` not set' % attribute)
+                    return self.__dict__.get(attribute)
+
+            # Raise AttributeError if attribute value not found.
+            raise AttributeError(f'{self.__class__.__name__}.{attribute} is invalid.')
     
     def save(self, name, content, save=True):
         """Saves the source image and generates thumbnails.
