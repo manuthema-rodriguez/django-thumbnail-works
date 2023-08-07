@@ -94,6 +94,12 @@ class BaseThumbnailFieldFile(ImageFieldFile):
             raise ThumbnailOptionError('The identifier must be set to something on thumbnails')
         return identifier.replace(' ', '_')
     
+    def get_instance_client(self):
+        if self.instance.__class__.__name__ == "Client":
+            return self.instance
+        else:
+            return self.instance.client
+            
     def save(self, source_content=None):
         """Saves the thumbnail file.
         
@@ -104,8 +110,8 @@ class BaseThumbnailFieldFile(ImageFieldFile):
         source image's ImageFieldFile.
         
         """
-
-        self.storage = get_storage(self.instance.client, "IMG")
+  
+        self.storage = get_storage(self.get_instance_client(), "IMG")
         # Set the thumbnail as an attribute of the source image's ImageFieldFile
         setattr(self.source, self.identifier, self)
 
@@ -140,7 +146,7 @@ class BaseThumbnailFieldFile(ImageFieldFile):
             self.close()
             del self.file
         
-        self.storage = get_storage(self.instance.client, "IMG")
+        self.storage = get_storage(self.get_instance_client(), "IMG")
         self.storage.delete(self.name)
 
         self.name = None
@@ -224,7 +230,15 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
         
         # Among others, also sets ``self.name``
         super(BaseEnhancedImageFieldFile, self).__init__(instance, field, name)
+       
+       
+    def get_instance_client(self):
+        if self.instance.__class__.__name__ == "Client":
+            return self.instance
+        else:
+            return self.instance.client
         
+         
     def _verify_thumbnail_requirements(self):
         """This function performs a series of checks to ensure flawless
         thumbnail access, generation and management. It is a safety mechanism.
@@ -275,7 +289,7 @@ class BaseEnhancedImageFieldFile(ImageFieldFile):
                 # Check thumbnail exists and generate it if need
                 self._require_file()    # TODO: document this
                 if self._verify_thumbnail_requirements():
-                    self.storage = get_storage(self.instance.client, type='IMG')
+                    self.storage = get_storage(self.get_instance_client(), "IMG")
                     proc_opts = self.field.thumbnails[attribute]
                     t = ThumbnailFieldFile(self.instance, self.field, self, self.name, attribute, proc_opts)
 
