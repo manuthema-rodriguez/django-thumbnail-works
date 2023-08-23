@@ -150,7 +150,7 @@ class ImageProcessor:
         # to rewind it back to be able to get the data,
         content.seek(0)
         im = Image.open(content)
-        
+        self.proc_opts['format'] = im.format
         # Convert to RGB format
         if im.mode not in ('L', 'RGB','RGBA'):
             im = im.convert('RGB')
