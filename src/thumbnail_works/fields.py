@@ -23,7 +23,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-
+from PIL import Image
 from django.db.models.fields.files import ImageField, ImageFieldFile
 from django.utils.encoding import smart_unicode
 
@@ -73,6 +73,10 @@ class BaseThumbnailFieldFile(ImageFieldFile):
         # Set the thumbnail identifier
         self.identifier = self.get_identifier(identifier)
         # Set the image processing options for this image (thumbnail)
+        if settings.THUMBNAILS_FORMAT == "ORG":
+            img = Image.open(source)
+            proc_opts["format"]=img.format
+        
         self.setup_image_processing_options(proc_opts)
         self.source = source
         
